@@ -445,8 +445,8 @@ def readmosfits(fname, options, extension=None):
         datasec = ""
         try:
             datasec = header["DATASEC"]
-            warning("%s contains a DATASEC keyword not compatible with the pipeline" % path)
-            warning("The content of the keyword will be erased on the reduced data")
+            #warning("%s contains a DATASEC keyword not compatible with the pipeline" % path)
+            #warning("The content of the keyword will be erased on the reduced data")
             del header["DATASEC"]
         except:
             pass

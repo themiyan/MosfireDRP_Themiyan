@@ -310,6 +310,8 @@ def imcombine(files, maskname, options, flat, outname=None, shifts=None,
             electrons = np.sum(electrons, axis=0)
             itimes = np.sum(itimes, axis=0)
             Nframe = len(files) 
+            
+
 
         elif len(files) > 5:
             warning( "WARNING: Drop min/max CRR")
@@ -350,9 +352,10 @@ def imcombine(files, maskname, options, flat, outname=None, shifts=None,
                      electrons[i,:,:] = el
                      itimes[i,:,:] = it
 
+            
             electrons = np.sum(electrons, axis=0)
             itimes = np.sum(itimes, axis=0)
-            Nframe = len(files) 
+            Nframe = len(files)
 
 
     ''' Now handle variance '''
@@ -365,6 +368,8 @@ def imcombine(files, maskname, options, flat, outname=None, shifts=None,
     ''' Now mask out bad pixels '''
     electrons[data.mask] = np.nan
     var[data.mask] = np.inf
+    
+    print var[data.mask]
 
     if "RN" in header:
         error("RN Already populated in header")
