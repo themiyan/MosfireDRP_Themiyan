@@ -97,7 +97,7 @@ def csu_mm_to_pix(x_mm, slitno, Please_Use=False):
     x_kfp = (centerx - x_mm) * tempscale
     y_kfp = 5.8*mm * (numslits/2. - slitno + 0.35) * tempscale
 
-    path = os.path.join(os.path.dirname(__file__), "data", 
+    path = os.path.join(os.environ["MOSPATH"], "platescale", 
             "linear_pix2mm_120k.db") 
     #
     return  mosfire_geoxytran(x_kfp, y_kfp,
@@ -110,7 +110,7 @@ def mosfire_geoxytran(x_kfp, y_kfp, transform="final.pix2mm.4.972.120k",
     iraf.images()
 
 
-    path = os.path.join(os.path.dirname(__file__), "data", 
+    path = os.path.join(os.environ["MOSPATH"], "platescale", 
             "10March2011.4.972.db")
     database = path
     pars = iraf.geoxytran.getParList()
@@ -129,7 +129,7 @@ def mosfire_geoxytrans(x_kfp, y_kfp, transform="final.pix2mm.4.972.120k",
         database="ale/10March2011.4.972.db", direction="forward"):
     '''Conveninece wrapper around IRAF geoxytran'''
     iraf.images()
-    path = os.path.join(os.path.dirname(__file__), "data", 
+    path = os.path.join(os.environ["MOSPATH"], "platescale", 
             "10March2011.4.972.db")
     database = path
     pars = iraf.geoxytran.getParList()
@@ -215,7 +215,7 @@ class Barset:
             return (np.float(slit["Target_Priority"]) < 0)
 
         # If len(ssl) == 0 then the header is for a long slit
-        if (header['MASKNAME'] == 'long2pos'):
+        if (header['MASKNAME'] == 'long2pos') or (header['MASKNAME'] == 'long2pos_specphot'):
             info("long2pos mode in CSU slit determination")
             self.long2pos_slit = True
 

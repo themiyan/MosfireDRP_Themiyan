@@ -137,7 +137,7 @@ def load_lambdaslit(fnum, maskname, band, options):
     return readfits(fn, options)
 
 def writefits(img, maskname, fname, options, header=None, bs=None,
-        overwrite=False, lossy_compress=False):
+        overwrite=False, lossy_compress=False, rename=False):
     '''Convenience wrapper to write MOSFIRE drp-friendly FITS files
     
     Args:
@@ -157,6 +157,13 @@ def writefits(img, maskname, fname, options, header=None, bs=None,
         Writes a file to fname with data img and header header.
 
     '''
+    if rename:
+        os.rename(fname+'.fits', fname+'_before_correction.fits')
+        hdu = pf.PrimaryHDU(img)
+        hdu.header = header
+        hdu.writeto(fname+'.fits')
+        return
+    
 
     if lossy_compress:
         hdu = pf.PrimaryHDU(floatcompress(img))

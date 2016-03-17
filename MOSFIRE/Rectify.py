@@ -222,7 +222,8 @@ def handle_rectification(maskname, in_files, wavename, band_pass, files, options
             img += solution["eps_img"]
             std += solution["sd_img"]
             tms += solution["itime_img"]
-
+        #print "adding in quadrature"
+        
         output = np.append(output, img, 0)
         output = np.append(output, np.nan*np.zeros((3,S[1])), 0)
         snrs = np.append(snrs, img*tms/std, 0)
@@ -385,6 +386,11 @@ def handle_rectification_helper(edgeno):
     itss = []
     if len(shifts) is 1: sign = 1
     else: sign = -1
+    #Added by TN to print rectified non interpolated sig spectrum for Karl
+    #hdu = pf.PrimaryHDU((vv)**0.5)
+    #hdu.writeto('/Users/temp/mosdrp/output/COSMOS_Hmask4/2016jan7/H/'+str(edge["Target_Name"]) +'_offset_'+str(np.max(tops-top))+'.fits')
+    
+    
     for shift in shifts:
         output = r_interpol(ll, eps, fidl, tops, top, shift_pix=shift/0.18,
             pad=[mnshift, mxshift], fill_value = np.nan)
@@ -393,7 +399,10 @@ def handle_rectification_helper(edgeno):
         ivar = 1/vv
         bad = np.where(np.isfinite(ivar) ==0)
         ivar[bad] = 0.0
-        output = r_interpol(ll, ivar, fidl, tops, top, shift_pix=shift/0.18,
+        #TN: i've changed the code here (removed again)
+        #to change back to DRP version remove 1/ in output
+        #and ivss.append lines and remove **2
+        output = r_interpol(ll,   ivar, fidl, tops, top, shift_pix=shift/0.18,
             pad=[mnshift, mxshift], fill_value=np.nan) 
         ivss.append(output)
 
@@ -419,7 +428,8 @@ def handle_rectification_helper(edgeno):
     IV[bad] = np.inf
     var_img = np.nanmean(1/np.array(IV), axis=0)
     sd_img = np.sqrt(var_img)
-
+    
+    
     return {"eps_img": eps_img, "sd_img": sd_img, "itime_img": it_img, 
             "lambda": fidl, "Target_Name": edge["Target_Name"], 
             "slitno": edgeno+1, "offset": np.max(tops-top)}

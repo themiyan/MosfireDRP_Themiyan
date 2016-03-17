@@ -2705,6 +2705,80 @@ def plot_data_quality(maskname, fname, options):
 
     pp.close()
 
+
+
+def bary_corr(files,wavename,options,maskname,extension=None):
+    from PyAstronomy import pyasl
+    import pandas as pd
+    # Coordinates of KECK 1
+    # https://www.ifa.hawaii.edu/mko/coordinates.shtml
+    longitude = 155 + (28./60) + (28.98665/3600)
+    latitude = 19+ (49./60)+  (33.40757/3600)
+    altitude = 4159.581216 
+    
+    output = pd.DataFrame( index=np.arange(1,len(files),1), columns=['exp_name'])
+    
+    files = IO.list_file_to_strings(files)
+    
+    for i in xrange(len(files)):
+        fname = files[i]
+        thishdr, data, bs = IO.readmosfits(fname, options, extension=extension)
+        
+        try:
+            Julian_date = thishdr['MJD-OBS'] + 2.4e6 #this is some magical number
+        except KeyError:
+            print "Header don't have information"
+            continue
+            
+        RA  = thishdr['TARGRA']
+        DEC = thishdr['TARGDEC']
+        
+        #corrections are calculated 
+        corr, hjd = pyasl.helcorr(longitude, latitude, altitude, RA, DEC, Julian_date, debug=False)
+
+        print fname, "--> Barycentric correction [km/s]: ", corr, " Heliocentric Julian day: ", hjd
+        
+        output.ix[i+1,'index']            = i+1
+        output.ix[i+1,'exp_name']         = fname
+        output.ix[i+1,'date']             = thishdr['DATE-OBS']
+        output.ix[i+1,'UTC']              = thishdr['UTC']
+        output.ix[i+1,'julian_date']      = Julian_date
+        output.ix[i+1,'heliocentric_julian_date']      = hjd
+        output.ix[i+1,'Barycentric_correction_kms-1']  = corr
+        output.ix[i+1,'RA']   = RA
+        output.ix[i+1,'DEC']  = DEC
+        
+        
+    output.set_index('index', inplace=True)     
+    output.to_csv('barycentric_corrections.csv')#fix path
+    
+    median_bary_corr = np.median(output['Barycentric_correction_kms-1'])
+    
+    print 'Opening fits file'
+    lam = IO.readfits(wavename, options)
+    print 'Successfully opened fits file'
+    try:
+        assert lam[0]['BARYCORR']==None, 'The lambda solutions file has already been corrected for barycentric velocity. Comment this step from the Driver file.'
+    except KeyError:
+        pass
+    Lambda_corrected = np.asarray(lam[1] * (1.0+(float(median_bary_corr)/3e5)))
+    wavename = wavename.rstrip(".fits")
+    lam[0]['BARYCORR'] = (median_bary_corr,'Km/s,+->moving towards object')
+    IO.writefits(Lambda_corrected, maskname, wavename, 
+            options, header=lam[0], overwrite=True, rename=True)
+    
+    
+    #hdr.set('BARY_COR' , bary_corr, comment='The Barycentric correction applied to the wavelength')
+        
+    return
+    
+    
+    
+    
+
+
+
+
 if __name__ == "__main__":
     np.set_printoptions(precision=3)
 
