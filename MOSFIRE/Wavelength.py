@@ -2754,10 +2754,11 @@ def bary_corr(files,wavename,options,maskname,extension=None):
     latitude = 19+ (49./60)+  (33.40757/3600)
     altitude = 4159.581216 
     
+    #print files
     
     for i in xrange(len(files)):
-        fname = files[i]
-        thishdr, data, bs = IO.readmosfits(fname, options, extension=extension)
+        fname = str(files[i])
+        thishdr, data, bs = IO.readmosfits(fname, options)
         
         try:
             Julian_date = thishdr['MJD-OBS'] + 2.4e6 #this is some magical number

@@ -273,14 +273,21 @@ def handle_rectification(maskname, in_files, wavename, band_pass, files, options
     header["crval2"] = 1
     header["crpix1"] = 1
     header["crpix2"] = 1
-    header["cdelt1"] = 1
-    header["cdelt2"] = 1
+    #remove redundant CDELTi due to wavelength issues with ds9
+    #see: https://github.com/Keck-DataReductionPipelines/MosfireDRP/issues/44
+    #header["cdelt1"] = 1
+    #header["cdelt2"] = 1
     header["cname1"] = "angstrom"
     header["cname2"] = "pixel"
     header["cd1_1"] = (ll[1]-ll[0], 'Angstrom/pixel')
     header["cd1_2"] = 0
     header["cd2_1"] = 0
     header["cd2_2"] = 1
+    try:
+        header["BARYCORR"]= (lambdas[0]['BARYCORR'],lambdas[0].comments['BARYCORR'])
+    except KeyError:
+        warning( "Barycentric corrections not applied to the wavelength solution")
+        pass
 
 
     header["bunit"] = "ELECTRONS/SECOND"

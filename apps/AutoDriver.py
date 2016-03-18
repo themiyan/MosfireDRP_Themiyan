@@ -211,6 +211,7 @@ class Driver:
                 
         self.addLine("")
         self.addLine("Wavelength_file = '"+str(self.waveName)+"'")
+        self.addLine("Wavelength.bary_corr(obsfiles, Wavelength_file, maskname, band, waveops)")
         self.addLine("")
             
     def printBackground(self):
