@@ -211,6 +211,7 @@ class Driver:
                 
         self.addLine("")
         self.addLine("Wavelength_file = '"+str(self.waveName)+"'")
+        self.addLine("Wavelength.bary_corr(obsfiles, Wavelength_file, maskname, band, waveops)")
         self.addLine("")
             
     def printBackground(self):
@@ -261,6 +262,13 @@ class Driver:
 def OffsetPairs():
 
     offsetFiles = glob.glob("Offset_*.txt")
+    if len(offsetFiles)==0:
+        print "##############################################"
+        print "WARNING: There are no Offset files"
+        print "         Are you sure you observed this mask?"
+        print "##############################################"
+        sys.exit(0)
+        
     # remove Offset_ and remote .txt
     tmpOffsets = [off.replace("Offset_","").replace(".txt","") for off in offsetFiles]
     # for each name, separate using _ as a separator
